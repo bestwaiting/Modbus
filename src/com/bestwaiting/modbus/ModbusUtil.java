@@ -226,6 +226,9 @@ public class ModbusUtil
 		System.out.println("从站地址===" + result[0]);
 		System.out.println("data 个数===" + result[1]);
 		System.out.println("data 长度===" + result[2]);
+		for(int i=0;i<result.length;i++){
+			System.out.println(i+"--->"+result[i]);
+		}
 		byte[] temp = null;
 		ByteBuffer buffer = ByteBuffer.wrap(result, 3, result.length - 3);//直接获取 data
 		while (buffer.hasRemaining()) {
@@ -237,11 +240,11 @@ public class ModbusUtil
 	}
 
 	public static void main(String[] args) {
-		ByteQueue result = ModbusUtil.modbusRTCP("169.254.48.188", 502, 2,15, 3);
+		ByteQueue result = ModbusUtil.modbusRTCP("127.0.0.1", 502, 1,0, 10);
 		ansisByteQueue(result);
 		short[] shor = new short[1];
-		shor[0] = 0x33;
-		ModbusUtil.modbusWTCP("169.254.48.188", 502, 2, 15, shor);
+		shor[0] = 0x12;
+		ModbusUtil.modbusWTCP("127.0.0.1", 502, 1, 0, shor);
 
 	}
 }
