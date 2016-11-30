@@ -1,6 +1,8 @@
 package com.bestwaiting.modbus;
 
 import java.nio.ByteBuffer;
+import java.util.Calendar;
+import java.util.Date;
 
 import com.serotonin.modbus4j.ModbusFactory;
 import com.serotonin.modbus4j.ModbusMaster;
@@ -213,7 +215,28 @@ public class ModbusUtil
 		}
 		return stringBuilder.toString();
 	}
-
+	public static float ByteToFloat(byte[] bResponse)
+    {
+        if (bResponse.length < 4 || bResponse.length > 4)
+        {
+            //throw new NotEnoughDataInBufferException(data.length(), 8);
+            return 0;
+        }
+        else
+        {
+            byte[] intBuffer = new byte[4];
+            //将byte数组的前后两个字节的高低位换过来 DCBA
+            intBuffer[0] = bResponse[2];
+            intBuffer[1] = bResponse[3];
+            intBuffer[2] = bResponse[0];
+            intBuffer[3] = bResponse[1];
+            int accum = 0;  
+            for ( int shiftBy = 0; shiftBy < 4; shiftBy++ ) {  
+                    accum |= (intBuffer[shiftBy] & 0xff) << shiftBy * 8;  
+            }  
+            return Float.intBitsToFloat(accum);  
+        }
+    }
 	/**
 	 * ***************************************************
 	 * 起始位置15,响应数据：从站|data包含的传感器个数|data length|data*
@@ -232,19 +255,19 @@ public class ModbusUtil
 		byte[] temp = null;
 		ByteBuffer buffer = ByteBuffer.wrap(result, 3, result.length - 3);//直接获取 data
 		while (buffer.hasRemaining()) {
-			temp = new byte[2];
+			temp = new byte[4];
 			buffer.get(temp, 0, temp.length);
-			System.out.print(Integer.parseInt(bytesToHexString(temp), 16)+" ");
+			System.out.print(ByteToFloat(temp));
 		}
 
 	}
 
 	public static void main(String[] args) {
-		ByteQueue result = ModbusUtil.modbusRTCP("127.0.0.1", 502, 1,0, 10);
+		ByteQueue result = ModbusUtil.modbusRTCP("127.0.0.1", 502, 1,0, 2);
 		ansisByteQueue(result);
-		short[] shor = new short[1];
-		shor[0] = 0x12;
-		ModbusUtil.modbusWTCP("127.0.0.1", 502, 1, 0, shor);
-
+//		short[] shor = new short[1];
+//		shor[0] = 0x12;
+//		ModbusUtil.modbusWTCP("127.0.0.1", 502, 1, 0, shor);
+		
 	}
 }
